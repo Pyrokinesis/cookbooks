@@ -7,16 +7,16 @@
 # All rights reserved - Do Not Redistribute
 #
 
-env_srv1 = node['clients-api']['enviroment']['tier1']['env_srv']
-env_db1 = node['clients-api']['enviroment']['tier1']['env_db']
-env_user1 = node['clients-api']['enviroment']['tier1']['env_user']
-env_pass1 = node['clients-api']['enviroment']['tier1']['env_pass']
+env_srv1 = node['clients-api']['environments']['tier1']['env_srv']
+env_db1 = node['clients-api']['environments']['tier1']['env_db']
+env_user1 = node['clients-api']['environments']['tier1']['env_user']
+env_pass1 = node['clients-api']['environments']['tier1']['env_pass']
 env_file = node['clients-api']['deploy']['env_file']
 
-env_srv2 = node['clients-api']['enviroment']['tier2']['env_srv']
-env_db2 = node['clients-api']['enviroment']['tier2']['env_db']
-env_user2 = node['clients-api']['enviroment']['tier2']['env_user']
-env_pass2 = node['clients-api']['enviroment']['tier2']['env_pass']
+env_srv2 = node['clients-api']['environments']['tier2']['env_srv']
+env_db2 = node['clients-api']['environments']['tier2']['env_db']
+env_user2 = node['clients-api']['environments']['tier2']['env_user']
+env_pass2 = node['clients-api']['environments']['tier2']['env_pass']
 
 username = node['clients-api']['deploy']['username']
 groupname = node['clients-api']['deploy']['groupname']
