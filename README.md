@@ -1,2 +1,0 @@
-# cookbooks
-Disposable things
