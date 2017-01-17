@@ -11,7 +11,7 @@ env_srv1 = node['clients-api']['environments']['tier1']['env_srv']
 env_db1 = node['clients-api']['environments']['tier1']['env_db']
 env_user1 = node['clients-api']['environments']['tier1']['env_user']
 env_pass1 = node['clients-api']['environments']['tier1']['env_pass']
-env_file = node['clients-api']['deploy']['env_file']
+env_file = node['clients-api']['environments']['files']['env_file']
 
 env_srv2 = node['clients-api']['environments']['tier2']['env_srv']
 env_db2 = node['clients-api']['environments']['tier2']['env_db']
