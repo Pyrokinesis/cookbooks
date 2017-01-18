@@ -8,6 +8,7 @@
 #
 
 env_srv1 = node['clients-api']['environments']['tier1']['env_srv']
+Chef::Log.info("We got value for Env var #{env_srv1} - PABLO") 
 env_db1 = node['clients-api']['environments']['tier1']['env_db']
 env_user1 = node['clients-api']['environments']['tier1']['env_user']
 env_pass1 = node['clients-api']['environments']['tier1']['env_pass']
