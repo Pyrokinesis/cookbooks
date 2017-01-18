@@ -11,13 +11,14 @@ env_srv1 = node['clients-api']['environments']['tier1']['env_srv']
 env_db1 = node['clients-api']['environments']['tier1']['env_db']
 env_user1 = node['clients-api']['environments']['tier1']['env_user']
 env_pass1 = node['clients-api']['environments']['tier1']['env_pass']
-env_file = node['clients-api']['environments']['files']['env_file']
+# env_file = node['clients-api']['environments']['files']['env_file']
 
 env_srv2 = node['clients-api']['environments']['tier2']['env_srv']
 env_db2 = node['clients-api']['environments']['tier2']['env_db']
 env_user2 = node['clients-api']['environments']['tier2']['env_user']
 env_pass2 = node['clients-api']['environments']['tier2']['env_pass']
 
+env_file = '/home/ubuntu/env_file'
 username = node['clients-api']['deploy']['username']
 groupname = node['clients-api']['deploy']['groupname']
 pubkey = node['clients-api']['deploy']['pubkey']
@@ -45,7 +46,7 @@ end
 
 #Print file
 def print_file(final_envs)
-  shared = open('#{env_file}', "w")
+  shared = open(env_file, "w")
   final_envs.each { |key, value| shared.puts("#{key}=#{value}")}
   shared.close
 end
