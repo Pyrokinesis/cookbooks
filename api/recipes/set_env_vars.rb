@@ -49,13 +49,14 @@ case environmentTag
       #dump firts mysql enviroment
       first_output = `mysql -h #{env_srv1} -u#{env_user1} -p#{env_pass1} -e 'SELECT name,value FROM env_variables' #{env_db1}`
       first_envs = format_output(first_output)
-
+      Chef::Log.info("We got mysql dump #{first_envs} - PABLO")
       # dump second mysql enviroment
       second_output = `mysql -h #{env_srv2} -u#{env_user2} -p#{env_pass2} -e 'SELECT name,value FROM env_variables' #{env_db2}`
       second_envs = format_output(second_output)
 
       # Second sql query must overwrites Prod vars, and add new ones
       final_envs = first_envs.merge(second_envs)
+      Chef::Log.info("We got FINAL merge #{final_envs} - PABLO")
       
       #Generate file
       env_file = open(env_file, "w")
