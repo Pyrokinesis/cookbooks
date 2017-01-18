@@ -12,14 +12,14 @@ Chef::Log.info("We got value for Env var #{env_srv1} - PABLO")
 env_db1 = node['clients-api']['environments']['tier1']['env_db']
 env_user1 = node['clients-api']['environments']['tier1']['env_user']
 env_pass1 = node['clients-api']['environments']['tier1']['env_pass']
-# env_file = node['clients-api']['environments']['files']['env_file']
-
+env_file = node['clients-api']['environments']['files']['env_file']
+Chef::Log.info("We got value for Env File #{env_file} - PABLO") 
 env_srv2 = node['clients-api']['environments']['tier2']['env_srv']
 env_db2 = node['clients-api']['environments']['tier2']['env_db']
 env_user2 = node['clients-api']['environments']['tier2']['env_user']
 env_pass2 = node['clients-api']['environments']['tier2']['env_pass']
 
-env_file = '/home/ubuntu/env_file'
+#env_file = '/home/ubuntu/env_file'
 username = node['clients-api']['deploy']['username']
 groupname = node['clients-api']['deploy']['groupname']
 pubkey = node['clients-api']['deploy']['pubkey']
@@ -57,6 +57,7 @@ case environmentTag
       #dump firts mysql enviroment
       first_output = `mysql -h #{env_srv1} -u#{env_user1} -p#{env_pass1} -e 'SELECT name,value FROM env_variables' #{env_db1}`
       first_envs = format_output(first_output)
+      Chef::Log.info("This is OUTPUT of FIRST array #{first_envs}") 
 
       # dump second mysql enviroment
       second_output = `mysql -h #{env_srv2} -u#{env_user2} -p#{env_pass2} -e 'SELECT name,value FROM env_variables' #{env_db2}`
