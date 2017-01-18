@@ -45,13 +45,6 @@ def format_output(output)
   rows_array.each_with_object({}) { |(k,v), res| res[k] = v }
 end
 
-#Print file
-def print_file(final_envs)
-  shared = open(env_file, "w")
-  final_envs.each { |key, value| shared.puts("#{key}=#{value}")}
-  shared.close
-end
-
 case environmentTag
     when 'beta', 'alpha'
       #dump firts mysql enviroment
