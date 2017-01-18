@@ -37,20 +37,18 @@ omit_symlink = node['clients-api']['deploy']['omit_symlink']
 
 environmentTag = `aws ec2 describe-tags --filters "Name=resource-id,Values=#{node[:opsworks][:instance][:aws_instance_id]}" --region #{node[:opsworks][:instance][:region]} --output=text | grep 'Env' | cut -f5`
 
-
-#Format slq output
 def format_output(output)
   rows_array = output.split("\n").map { |line| line.split("\t") }
   rows_array.shift
   rows_array.each_with_object({}) { |(k,v), res| res[k] = v }
 end
 
+
 case environmentTag
     when 'beta', 'alpha'
       #dump firts mysql enviroment
       first_output = `mysql -h #{env_srv1} -u#{env_user1} -p#{env_pass1} -e 'SELECT name,value FROM env_variables' #{env_db1}`
       first_envs = format_output(first_output)
-      Chef::Log.info("This is OUTPUT of FIRST array #{first_envs}") 
 
       # dump second mysql enviroment
       second_output = `mysql -h #{env_srv2} -u#{env_user2} -p#{env_pass2} -e 'SELECT name,value FROM env_variables' #{env_db2}`
@@ -60,7 +58,9 @@ case environmentTag
       final_envs = first_envs.merge(second_envs)
       
       #Generate file
-      print_file(final_envs)
+      env_file = open(env_file, "w")
+      final_envs.each { |key, value| env_file.puts("#{key}=#{value}") }
+      env_file.close
       
     when 'production', 'staging'
       #We create file with query output without doing merge
@@ -68,6 +68,8 @@ case environmentTag
       final_envs = format_output(sql_output)
       
       #Print sql query
-      print_file(final_envs)
+      env_file = open(env_file, "w")
+      final_envs.each { |key, value| env_file.puts("#{key}=#{value}") }
+      env_file.close
 
 end
