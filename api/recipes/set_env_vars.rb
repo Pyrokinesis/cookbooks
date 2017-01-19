@@ -19,22 +19,6 @@ env_db2 = node['clients-api']['environments']['tier2']['env_db']
 env_user2 = node['clients-api']['environments']['tier2']['env_user']
 env_pass2 = node['clients-api']['environments']['tier2']['env_pass']
 
-#env_file = '/home/ubuntu/env_file'
-username = node['clients-api']['deploy']['username']
-groupname = node['clients-api']['deploy']['groupname']
-pubkey = node['clients-api']['deploy']['pubkey']
-privkey = node['clients-api']['deploy']['privkey']
-deploy_to = node['clients-api']['deploy']['deploy_to']
-repository = node['clients-api']['deploy']['repository']
-branch = node['clients-api']['deploy']['branch']
-linked_dirs = node['clients-api']['deploy']['linked_dirs']
-restart_cmd = node['clients-api']['deploy']['restart_cmd']
-rvm_ruby_version = node['clients-api']['deploy']['rvm_ruby_version']
-omit_bundle = node['clients-api']['deploy']['omit_bundle']
-omit_migrate = node['clients-api']['deploy']['omit_migrate']
-omit_symlink = node['clients-api']['deploy']['omit_symlink']
-
-
 environmentTag = `aws ec2 describe-tags --filters "Name=resource-id,Values=#{node[:opsworks][:instance][:aws_instance_id]}" --region #{node[:opsworks][:instance][:region]} --output=text | grep 'Env' | cut -f5`
 
 def format_output(output)
