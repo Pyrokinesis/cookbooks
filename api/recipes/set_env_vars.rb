@@ -26,12 +26,13 @@ def format_output(output)
   rows_array.shift
   rows_array.each_with_object({}) { |(k,v), res| res[k] = v }
 end
-
+Chef::Log.info("Environment TAG is: #{environmentTag} - PABLO")
 
 case environmentTag
     when 'beta', 'alpha'
       #dump firts mysql enviroment
       first_output = `mysql -h #{env_srv1} -u#{env_user1} -p#{env_pass1} -e 'SELECT name,value FROM env_variables' #{env_db1}`
+      Chef::Log.info("We got mysql dump #{first_output} - PABLO")
       first_envs = format_output(first_output)
       Chef::Log.info("We got mysql dump #{first_envs} - PABLO")
       # dump second mysql enviroment
