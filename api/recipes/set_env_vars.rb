@@ -19,6 +19,10 @@ env_db2 = node['clients-api']['environments']['tier2']['env_db']
 env_user2 = node['clients-api']['environments']['tier2']['env_user']
 env_pass2 = node['clients-api']['environments']['tier2']['env_pass']
 
+
+ruby_block 'Execute some good Ruby' do
+  block do
+    
 environmentTag = `aws ec2 describe-tags --filters "Name=resource-id,Values=#{node[:opsworks][:instance][:aws_instance_id]}" --region #{node[:opsworks][:instance][:region]} --output=text | grep 'Env' | cut -f5`
 
 def format_output(output)
@@ -58,4 +62,7 @@ case environmentTag
       final_envs.each { |key, value| env_file.puts("#{key}=#{value}") }
       env_file.close
 
+end
+end
+action :run
 end
