@@ -19,12 +19,11 @@ env_db2 = node['clients-api']['environments']['tier2']['env_db']
 env_user2 = node['clients-api']['environments']['tier2']['env_user']
 env_pass2 = node['clients-api']['environments']['tier2']['env_pass']
 
+environmentTag = `aws ec2 describe-tags --filters "Name=resource-id,Values=#{node[:opsworks][:instance][:aws_instance_id]}" --region #{node[:opsworks][:instance][:region]} --output=text | grep 'Env' | cut -f5`
 
-ruby_block 'Execute some good Ruby' do
+ruby_block 'Execute MySQL dump and merge variables with Ruby' do
   block do
     
-environmentTag = `aws ec2 describe-tags --filters "Name=resource-id,Values=#{node[:opsworks][:instance][:aws_instance_id]}" --region #{node[:opsworks][:instance][:region]} --output=text | grep 'Env' | cut -f5`
-#environmentTag = 'beta'
 case environmentTag
     when 'beta', 'alpha'
       # dump firts mysql enviroment
