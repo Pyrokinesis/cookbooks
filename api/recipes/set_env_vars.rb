@@ -12,13 +12,18 @@ Chef::Log.info("We got value for Env var #{env_srv1} - PABLO")
 env_db1 = node['clients-api']['environments']['tier1']['env_db']
 env_user1 = node['clients-api']['environments']['tier1']['env_user']
 env_pass1 = node['clients-api']['environments']['tier1']['env_pass']
+
 env_file = node['clients-api']['environments']['files']['env_file']
 Chef::Log.info("We got value for Env File #{env_file} - PABLO") 
+
 env_srv2 = node['clients-api']['environments']['tier2']['env_srv']
 env_db2 = node['clients-api']['environments']['tier2']['env_db']
 env_user2 = node['clients-api']['environments']['tier2']['env_user']
 env_pass2 = node['clients-api']['environments']['tier2']['env_pass']
-environmentTag = 'beta'
+
+# environmentTag = 'beta'
+
+environmentTag = node['clients-api']['environments']['Tag']['ec2']
 
 # environmentTag = `aws ec2 describe-tags --filters "Name=resource-id,Values=#{node[:opsworks][:instance][:aws_instance_id]}" --region #{node[:opsworks][:instance][:region]} --output=text | grep 'Env' | cut -f5`
 
