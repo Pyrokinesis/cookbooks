@@ -23,8 +23,10 @@ environmentTag = `aws ec2 describe-tags --filters "Name=resource-id,Values=#{nod
 
 ruby_block 'Execute MySQL dump and merge variables with Ruby' do
   block do
-    
-case environmentTag
+	  
+Chef::Log.info("Variable for EC2 Tag is #{environmentTag} - PABLO")
+
+case "#{environmentTag}"
     when 'beta', 'alpha'
       # dump firts mysql enviroment
       first_output = `mysql -h #{env_srv1} -u#{env_user1} -p#{env_pass1} -e 'SELECT name,value FROM env_variables' #{env_db1}`
