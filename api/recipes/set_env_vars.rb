@@ -23,8 +23,8 @@ env_pass2 = node['clients-api']['environments']['tier2']['env_pass']
 ruby_block 'Execute some good Ruby' do
   block do
     
-#environmentTag = `aws ec2 describe-tags --filters "Name=resource-id,Values=#{node[:opsworks][:instance][:aws_instance_id]}" --region #{node[:opsworks][:instance][:region]} --output=text | grep 'Env' | cut -f5`
-environmentTag = 'beta'
+environmentTag = `aws ec2 describe-tags --filters "Name=resource-id,Values=#{node[:opsworks][:instance][:aws_instance_id]}" --region #{node[:opsworks][:instance][:region]} --output=text | grep 'Env' | cut -f5`
+#environmentTag = 'beta'
 case environmentTag
     when 'beta', 'alpha'
       # dump firts mysql enviroment
