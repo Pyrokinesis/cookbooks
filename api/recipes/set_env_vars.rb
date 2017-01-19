@@ -23,41 +23,37 @@ env_pass2 = node['clients-api']['environments']['tier2']['env_pass']
 ruby_block 'Execute some good Ruby' do
   block do
     
-environmentTag = `aws ec2 describe-tags --filters "Name=resource-id,Values=#{node[:opsworks][:instance][:aws_instance_id]}" --region #{node[:opsworks][:instance][:region]} --output=text | grep 'Env' | cut -f5`
-
-def format_output(output)
-  rows_array = output.split("\n").map { |line| line.split("\t") }
-  rows_array.shift
-  rows_array.each_with_object({}) { |(k,v), res| res[k] = v }
-end
-Chef::Log.info("Environment TAG is: #{environmentTag} - PABLO")
-
+#environmentTag = `aws ec2 describe-tags --filters "Name=resource-id,Values=#{node[:opsworks][:instance][:aws_instance_id]}" --region #{node[:opsworks][:instance][:region]} --output=text | grep 'Env' | cut -f5`
+environmentTag = 'beta'
 case environmentTag
     when 'beta', 'alpha'
-      #dump firts mysql enviroment
+      # dump firts mysql enviroment
       first_output = `mysql -h #{env_srv1} -u#{env_user1} -p#{env_pass1} -e 'SELECT name,value FROM env_variables' #{env_db1}`
-      Chef::Log.info("We got mysql dump #{first_output} - PABLO")
-      first_envs = format_output(first_output)
-      Chef::Log.info("We got mysql dump #{first_envs} - PABLO")
+      rows_array1 = first_output.split("\n").map { |line| line.split("\t") }
+      rows_array1.shift
+      first_envs = rows_array1.each_with_object({}) { |(k,v), res| res[k] = v } 
       # dump second mysql enviroment
       second_output = `mysql -h #{env_srv2} -u#{env_user2} -p#{env_pass2} -e 'SELECT name,value FROM env_variables' #{env_db2}`
-      second_envs = format_output(second_output)
+      rows_array2 = second_output.split("\n").map { |line| line.split("\t") }
+			rows_array2.shift
+			second_envs = rows_array2.each_with_object({}) { |(k,v), res| res[k] = v }
 
       # Second sql query must overwrites Prod vars, and add new ones
       final_envs = first_envs.merge(second_envs)
-      Chef::Log.info("We got FINAL merge #{final_envs} - PABLO")
-      
-      #Generate file
+            
+      # Generate file
       env_file = open(env_file, "w")
       final_envs.each { |key, value| env_file.puts("#{key}=#{value}") }
       env_file.close
       
     when 'production', 'staging'
-      #We create file with query output without doing merge
+      # We create file with query output without doing merge
       sql_output = `mysql -h #{env_srv3} -u#{env_user3} -p#{env_pass3} -e 'SELECT name,value FROM env_variables' #{env_db3}`
-      final_envs = format_output(sql_output)
+      rows_array3 = sql_output.split("\n").map { |line| line.split("\t") }
+      rows_array3.shift
+      final_envs = rows_array3.each_with_object({}) { |(k,v), res| res[k] = v } 
       
-      #Print sql query
+      # Print sql query
       env_file = open(env_file, "w")
       final_envs.each { |key, value| env_file.puts("#{key}=#{value}") }
       env_file.close
