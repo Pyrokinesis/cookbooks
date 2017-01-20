@@ -9,28 +9,22 @@
 # This recipe reads ec2 Environment tag and takes custom json arguments to dump and merge
 # environment variables from different sources. 
 #
-# OpsWorks Stack Custom JSON example:
+# OpsWorks Stack Custom JSON Example: "Adapt yours according each Stack running this recipe"
+#
 # {
-#    "ring-devops": {
-#       "datadog": {
-#          "api_key": "<API KEY>",
-#          "config": {
-#             "<SERVICE_NAME>": {
-#                "instances": [
-# {
-#   "clients-api": {
+#   "ring-devops": {
 #     "env-vars": {
 #       "maindb": {
 #         "srv": "<prod-mysql-server-url>",
 #         "db": "<prod-env-db-name>",
 #         "user": "xxxxxx",
-#         "pass": "xxxxxx"
+#         "pass": "xxxxxxxxx"
 #       },
 #       "secdb": {
-#         "srv": "<beta-mysql-server-url>",
+#         "srv": "<beta-mysql-server-url>",  
 #         "db": "<beta-env-db-name>",
 #         "user": "xxxxxx",
-#         "pass": "xxxxxx"
+#         "pass": "xxxxxxxxx"
 #       },
 #       "output": {
 #         "env_file": "/etc/default/clients-api-shared"
@@ -41,20 +35,22 @@
 #     }
 #   }
 # }
-#
+# 
+# 
+
 
 # Pass custom JSON vars into local vars
-maindb_srv = node['clients-api']['env-vars']['maindb']['srv']
-maindb_db = node['clients-api']['env-vars']['maindb']['db']
-maindb_user = node['clients-api']['env-vars']['maindb']['user']
-maindb_pass = node['clients-api']['env-vars']['maindb']['pass']
+maindb_srv = node['ring-devops']['env-vars']['maindb']['srv']
+maindb_db = node['ring-devops']['env-vars']['maindb']['db']
+maindb_user = node['ring-devops']['env-vars']['maindb']['user']
+maindb_pass = node['ring-devops']['env-vars']['maindb']['pass']
 
-secdb_srv = node['clients-api']['env-vars']['secdb']['srv']
-secdb_db = node['clients-api']['env-vars']['secdb']['db']
-secdb_user = node['clients-api']['env-vars']['secdb']['user']
-secdb_pass = node['clients-api']['env-vars']['secdb']['pass']
+secdb_srv = node['ring-devops']['env-vars']['secdb']['srv']
+secdb_db = node['ring-devops']['env-vars']['secdb']['db']
+secdb_user = node['ring-devops']['env-vars']['secdb']['user']
+secdb_pass = node['ring-devops']['env-vars']['secdb']['pass']
 
-env_file = node['clients-api']['env-vars']['output']['env_file']
+env_file = node['ring-devops']['env-vars']['output']['env_file']
 
 # Query AWS EC2 Intance/Node to get Environment Tag of it. 
 begin
