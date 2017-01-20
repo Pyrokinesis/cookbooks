@@ -47,24 +47,16 @@ ruby_block 'Execute MySQL dump and merge variables with Ruby' do
         rows_array1 = first_output.split("\n").map { |line| line.split("\t") }
         rows_array1.shift
         first_envs = rows_array1.each_with_object({}) { |(k,v), res| res[k] = v }
-      rescue
-        Chef::Log.fatal("Could not connect to MySQL server #{maindb_srv}")
-        raise
-      end
-      begin
+      
         # Query and dump secondary DB to get Beta or Alpha variables
         second_output = `mysql -h #{secdb_srv} -u#{secdb_user} -p#{secdb_pass} -e 'SELECT name,value FROM env_variables' #{secdb_db}`
         Chef::Log.info("Successfully connected and dumped MySQL server #{secdb_srv} database #{secdb_db}")
         rows_array2 = second_output.split("\n").map { |line| line.split("\t") }
         rows_array2.shift
         second_envs = rows_array2.each_with_object({}) { |(k,v), res| res[k] = v }
-      rescue
-        Chef::Log.fatal("Could not connect to MySQL server #{secdb_srv}")
-        raise
-      end
-      # Merge both dumps to array. Alpha or Beta takes precedence over Staging or Prodcution.
-      final_envs = first_envs.merge(second_envs)
-      begin
+                
+        # Merge both dumps to array. Alpha or Beta takes precedence over Staging or Prodcution.
+        final_envs = first_envs.merge(second_envs)
         # Write array to file
         env_file = open(env_file, "w")
         final_envs.each { |key, value| env_file.puts("#{key}=#{value}") }
@@ -83,11 +75,7 @@ ruby_block 'Execute MySQL dump and merge variables with Ruby' do
         rows_array3 = sql_output.split("\n").map { |line| line.split("\t") }
         rows_array3.shift
         final_envs = rows_array3.each_with_object({}) { |(k,v), res| res[k] = v }
-      rescue
-        Chef::Log.fatal("Could not connect to MySQL server #{maindb_srv}")
-        raise
-      end
-      begin
+
         # Write array to file
         env_file = open(env_file, "w")
         final_envs.each { |key, value| env_file.puts("#{key}=#{value}") }
