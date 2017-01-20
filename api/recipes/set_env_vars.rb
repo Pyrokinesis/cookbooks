@@ -21,18 +21,21 @@ env_db2 = node['clients-api']['environments']['tier2']['env_db']
 env_user2 = node['clients-api']['environments']['tier2']['env_user']
 env_pass2 = node['clients-api']['environments']['tier2']['env_pass']
 
+# This fixed var definition works.
 # environmentTag = 'beta'
 
-environmentTag = node['clients-api']['environments']['Tag']['ec2']
+# This JSON var definition works.
+# environmentTag = node['clients-api']['environments']['Tag']['ec2']
 
-# environmentTag = `aws ec2 describe-tags --filters "Name=resource-id,Values=#{node[:opsworks][:instance][:aws_instance_id]}" --region #{node[:opsworks][:instance][:region]} --output=text | grep 'Env' | cut -f5`
+# Testing this one now.
+sweetlady = `aws ec2 describe-tags --filters "Name=resource-id,Values=#{node[:opsworks][:instance][:aws_instance_id]}" --region #{node[:opsworks][:instance][:region]} --output=text | grep 'Env' | cut -f5`
 
 ruby_block 'Execute MySQL dump and merge variables with Ruby' do
   block do
 	  
-Chef::Log.info("Variable for EC2 Tag is #{environmentTag} - PABLO")
+Chef::Log.info("Variable for EC2 Tag is #{sweetlady} - PABLO")
 	  
-case environmentTag
+case sweetlady
     when 'beta', 'alpha'
       # dump firts mysql enviroment
       first_output = `mysql -h #{env_srv1} -u#{env_user1} -p#{env_pass1} -e 'SELECT name,value FROM env_variables' #{env_db1}`
