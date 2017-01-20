@@ -1,17 +1,49 @@
 #
-# Cookbook Name:: ring-clients-api
-# Recipe:: deploy
+# Cookbook Name:: ring-devops
+# Recipe:: set_env_vars
 #
 # Copyright 2016, ring.com
+# Author: Pablo Schuhwerk <pablo.schuhwerk@ring.com>
 #
-# All rights reserved - Do Not Redistribute
+# Usage:
+# This recipe reads ec2 Environment tag and takes custom json arguments to dump and merge
+# environment variables from different sources. 
 #
-# USAGE:
-# 
-# 
-# 
+# OpsWorks Stack Custom JSON example:
+# {
+#    "ring-devops": {
+#       "datadog": {
+#          "api_key": "<API KEY>",
+#          "config": {
+#             "<SERVICE_NAME>": {
+#                "instances": [
+# {
+#   "clients-api": {
+#     "env-vars": {
+#       "maindb": {
+#         "srv": "<prod-mysql-server-url>",
+#         "db": "<prod-env-db-name>",
+#         "user": "xxxxxx",
+#         "pass": "xxxxxx"
+#       },
+#       "secdb": {
+#         "srv": "<beta-mysql-server-url>",
+#         "db": "<beta-env-db-name>",
+#         "user": "xxxxxx",
+#         "pass": "xxxxxx"
+#       },
+#       "output": {
+#         "env_file": "/etc/default/clients-api-shared"
+#       },
+#       "tags": {
+#         "env": "beta"
+#       }
+#     }
+#   }
+# }
+#
 
-# Define needed variables for script.
+# Pass custom JSON vars into local vars
 maindb_srv = node['clients-api']['env-vars']['maindb']['srv']
 maindb_db = node['clients-api']['env-vars']['maindb']['db']
 maindb_user = node['clients-api']['env-vars']['maindb']['user']
@@ -24,7 +56,7 @@ secdb_pass = node['clients-api']['env-vars']['secdb']['pass']
 
 env_file = node['clients-api']['env-vars']['output']['env_file']
 
-# Query AWS EC2 Intance/Node running recipe to get Environment Tag of it. 
+# Query AWS EC2 Intance/Node to get Environment Tag of it. 
 begin
   ec2_tag = `aws ec2 describe-tags --filters "Name=resource-id,Values=#{node[:opsworks][:instance][:aws_instance_id]}" --region #{node[:opsworks][:instance][:region]} --output=text | grep 'Env' | cut -f5`
   Chef::Log.info("Successfully retrieved enviroment tag #{ec2_tag.chomp}")
@@ -36,8 +68,7 @@ end
 
 ruby_block 'Execute MySQL dump and merge variables with Ruby' do
   block do
-    
-    
+
     case ec2_tag
     when 'beta', 'alpha'
       begin
@@ -61,9 +92,9 @@ ruby_block 'Execute MySQL dump and merge variables with Ruby' do
         env_file = open(env_file, "w")
         final_envs.each { |key, value| env_file.puts("#{key}=#{value}") }
         env_file.close
-        Chef::Log.info("Array successfully writed to file #{env_file}")
+        Chef::Log.info("** Array successfully writed to file.")
       rescue
-        Chef::Log.fatal("Could not write array to file #{env_file}")
+        Chef::Log.fatal("*** Oooopppss...array handling failed.")
         raise
       end
       
@@ -80,9 +111,9 @@ ruby_block 'Execute MySQL dump and merge variables with Ruby' do
         env_file = open(env_file, "w")
         final_envs.each { |key, value| env_file.puts("#{key}=#{value}") }
         env_file.close
-        Chef::Log.info("Array successfully writed to file #{env_file}")
+        Chef::Log.info("** Array successfully writed to file.")
       rescue
-        Chef::Log.fatal("Could not write array to file #{env_file}")
+        Chef::Log.fatal("*** Oooopppss...array handling failed.")
         raise
       end
     end
