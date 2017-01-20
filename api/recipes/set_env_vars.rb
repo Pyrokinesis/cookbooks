@@ -31,73 +31,73 @@ begin
   ec2_tag = ec2_tag.chomp
 rescue
   Chef::Log.fatal("Could not retrieve EC2 environment tag for this node")
-raise
+  raise
 end
 
 ruby_block 'Execute MySQL dump and merge variables with Ruby' do
   block do
-
-  
-case ec2_tag
-when 'beta', 'alpha'
-  begin
-    # Query and dump main DB to get Production or Staging variables
-    first_output = `mysql -h #{maindb_srv} -u#{maindb_user} -p#{maindb_pass} -e 'SELECT name,value FROM env_variables' #{maindb_db}`
-    Chef::Log.info("Successfully connected and dumped MySQL server #{main_srv} database #{main_db}")
-    rows_array1 = first_output.split("\n").map { |line| line.split("\t") }
-    rows_array1.shift
-    first_envs = rows_array1.each_with_object({}) { |(k,v), res| res[k] = v }
-  rescue
-    Chef::Log.fatal("Could not connect to MySQL server #{main_srv}")
-    raise
+    
+    
+    case ec2_tag
+    when 'beta', 'alpha'
+      begin
+        # Query and dump main DB to get Production or Staging variables
+        first_output = `mysql -h #{maindb_srv} -u#{maindb_user} -p#{maindb_pass} -e 'SELECT name,value FROM env_variables' #{maindb_db}`
+        Chef::Log.info("Successfully connected and dumped MySQL server #{maindb_srv} database #{maindb_db}")
+        rows_array1 = first_output.split("\n").map { |line| line.split("\t") }
+        rows_array1.shift
+        first_envs = rows_array1.each_with_object({}) { |(k,v), res| res[k] = v }
+      rescue
+        Chef::Log.fatal("Could not connect to MySQL server #{maindb_srv}")
+        raise
+      end
+      begin
+        # Query and dump secondary DB to get Beta or Alpha variables
+        second_output = `mysql -h #{secdb_srv} -u#{secdb_user} -p#{secdb_pass} -e 'SELECT name,value FROM env_variables' #{secdb_db}`
+        Chef::Log.info("Successfully connected and dumped MySQL server #{secdb_srv} database #{secdb_db}")
+        rows_array2 = second_output.split("\n").map { |line| line.split("\t") }
+        rows_array2.shift
+        second_envs = rows_array2.each_with_object({}) { |(k,v), res| res[k] = v }
+      rescue
+        Chef::Log.fatal("Could not connect to MySQL server #{secdb_srv}")
+        raise
+      end
+      # Merge both dumps to array. Alpha or Beta takes precedence over Staging or Prodcution.
+      final_envs = first_envs.merge(second_envs)
+      begin
+        # Write array to file
+        env_file = open(env_file, "w")
+        final_envs.each { |key, value| env_file.puts("#{key}=#{value}") }
+        env_file.close
+        Chef::Log.info("Array successfully writed to file #{env_file}")
+      rescue
+        Chef::Log.fatal("Could not write array to file #{env_file}")
+        raise
+      end
+      
+    when 'production', 'staging'
+      begin
+        # If node is tagged Production or Staging no need to merge environment variables
+        sql_output = `mysql -h #{maindb_srv} -u#{maindb_user} -p#{maindb_pass} -e 'SELECT name,value FROM env_variables' #{maindb_db}`
+        Chef::Log.info("Successfully connected and dumped MySQL server #{maindb_srv} database #{maindb_db}")
+        rows_array3 = sql_output.split("\n").map { |line| line.split("\t") }
+        rows_array3.shift
+        final_envs = rows_array3.each_with_object({}) { |(k,v), res| res[k] = v }
+      rescue
+        Chef::Log.fatal("Could not connect to MySQL server #{maindb_srv}")
+        raise
+      end
+      begin
+        # Write array to file
+        env_file = open(env_file, "w")
+        final_envs.each { |key, value| env_file.puts("#{key}=#{value}") }
+        env_file.close
+        Chef::Log.info("Array successfully writed to file #{env_file}")
+      rescue
+        Chef::Log.fatal("Could not write array to file #{env_file}")
+        raise
+      end
+    end
   end
-  begin
-    # Query and dump secondary DB to get Beta or Alpha variables
-    second_output = `mysql -h #{secdb_srv} -u#{secdb_user} -p#{secdb_pass} -e 'SELECT name,value FROM env_variables' #{secdb_db}`
-    Chef::Log.info("Successfully connected and dumped MySQL server #{secdb_srv} database #{secdb_db}")
-    rows_array2 = second_output.split("\n").map { |line| line.split("\t") }
-		rows_array2.shift
-		second_envs = rows_array2.each_with_object({}) { |(k,v), res| res[k] = v }
-  rescue
-    Chef::Log.fatal("Could not connect to MySQL server #{secdb_srv}")
-    raise
-  end
-    # Merge both dumps to array. Alpha or Beta takes precedence over Staging or Prodcution.
-    final_envs = first_envs.merge(second_envs)
-  begin
-    # Write array to file
-    env_file = open(env_file, "w")
-    final_envs.each { |key, value| env_file.puts("#{key}=#{value}") }
-    env_file.close
-    Chef::Log.info("Array successfully writed to file #{env_file}")
-  rescue
-    Chef::Log.fatal("Could not write array to file #{env_file}")
-    raise
-  end
-
-when 'production', 'staging'
-  begin
-    # If node is tagged Production or Staging no need to merge environment variables
-    sql_output = `mysql -h #{maindb_srv} -u#{maindb_user} -p#{maindb_pass} -e 'SELECT name,value FROM env_variables' #{maindb_db}`
-    Chef::Log.info("Successfully connected and dumped MySQL server #{maindb_srv} database #{maindb_db}")
-    rows_array3 = sql_output.split("\n").map { |line| line.split("\t") }
-    rows_array3.shift
-    final_envs = rows_array3.each_with_object({}) { |(k,v), res| res[k] = v }
-  rescue
-    Chef::Log.fatal("Could not connect to MySQL server #{maindb_srv}")
-    raise
-  end
-  begin
-    # Write array to file
-    env_file = open(env_file, "w")
-    final_envs.each { |key, value| env_file.puts("#{key}=#{value}") }
-    env_file.close
-    Chef::Log.info("Array successfully writed to file #{env_file}")
-  rescue
-    Chef::Log.fatal("Could not write array to file #{env_file}")
-    raise
-  end
-end
-end
-action :run
+  action :run
 end
