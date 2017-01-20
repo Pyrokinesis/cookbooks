@@ -22,7 +22,7 @@ secdb_db = node['clients-api']['env-vars']['secdb']['db']
 secdb_user = node['clients-api']['env-vars']['secdb']['user']
 secdb_pass = node['clients-api']['env-vars']['secdb']['pass']
 
-env_file = node['clients-api']['env-vars']['output']['file']
+env_file = node['clients-api']['env-vars']['output']['env_file']
 
 # Query AWS EC2 Intance/Node running recipe to get Environment Tag of it. 
 begin
@@ -40,6 +40,7 @@ ruby_block 'Execute MySQL dump and merge variables with Ruby' do
     
     case ec2_tag
     when 'beta', 'alpha'
+      begin
         # Query and dump main DB to get Production or Staging variables
         first_output = `mysql -h #{maindb_srv} -u#{maindb_user} -p#{maindb_pass} -e 'SELECT name,value FROM env_variables' #{maindb_db}`
         Chef::Log.info("Successfully connected and dumped MySQL server #{maindb_srv} database #{maindb_db}")
@@ -60,9 +61,14 @@ ruby_block 'Execute MySQL dump and merge variables with Ruby' do
         env_file = open(env_file, "w")
         final_envs.each { |key, value| env_file.puts("#{key}=#{value}") }
         env_file.close
-        Chef::Log.info("Merged Array successfully writed to file #{env_file}")
-
+        Chef::Log.info("Array successfully writed to file #{env_file}")
+      rescue
+        Chef::Log.fatal("Could not write array to file #{env_file}")
+        raise
+      end
+      
     when 'production', 'staging'
+      begin
         # If node is tagged Production or Staging no need to merge environment variables
         sql_output = `mysql -h #{maindb_srv} -u#{maindb_user} -p#{maindb_pass} -e 'SELECT name,value FROM env_variables' #{maindb_db}`
         Chef::Log.info("Successfully connected and dumped MySQL server #{maindb_srv} database #{maindb_db}")
@@ -75,6 +81,10 @@ ruby_block 'Execute MySQL dump and merge variables with Ruby' do
         final_envs.each { |key, value| env_file.puts("#{key}=#{value}") }
         env_file.close
         Chef::Log.info("Array successfully writed to file #{env_file}")
+      rescue
+        Chef::Log.fatal("Could not write array to file #{env_file}")
+        raise
+      end
     end
   end
   action :run
